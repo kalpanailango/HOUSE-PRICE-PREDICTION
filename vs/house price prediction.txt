@@ -1,0 +1,36 @@
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.neighbors import KNeighborsClassifier
+df = pd.read_csv(r'C:\Users\Kalpa\Downloads\Housing.csv')
+print(df.head())
+df["price_category"] = pd.qcut(df["price"], q=3, labels=["Low", "Medium", "High"])
+encoder = LabelEncoder()
+for col in ["mainroad", "guestroom", "basement", "hotwaterheating", "airconditioning", "prefarea", "furnishingstatus"]:
+    df[col] = encoder.fit_transform(df[col])
+    df.head()
+X = df.drop(columns=["price", "price_category"])
+y = df["price_category"]
+# Standardizing features (important for KNN)
+scaler = StandardScaler()
+X = scaler.fit_transform(X)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+clf = DecisionTreeClassifier(random_state=42)
+clf.fit(X_train, y_train)
+knn = KNeighborsClassifier(n_neighbors=5)  # k=5
+knn.fit(X_train, y_train)
+y_pred = knn.predict(X_test)
+print("Predicted Categories:", y_pred)
+accuracy = accuracy_score(y_test, y_pred)
+report = classification_report(y_test, y_pred)
+print("Accuracy:", accuracy)
+print("Classification Report:\n", report)
+y_pred = clf.predict(X_test)
+print("Predicted Categories:", y_pred)
+accuracy = accuracy_score(y_test, y_pred)
+report = classification_report(y_test, y_pred)
+print("Accuracy:", accuracy)
+print("Classification Report:\n", report)
